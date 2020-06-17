@@ -1,31 +1,71 @@
-React Native Pushwoosh Push Notifications module
-===================================================
+3. PUSHWOOSH PLUG-IN
 
-[![GitHub release](https://img.shields.io/github/release/Pushwoosh/pushwoosh-react-native-plugin.svg?style=flat-square)](https://github.com/Pushwoosh/pushwoosh-react-native-plugin/releases) 
-[![npm](https://img.shields.io/npm/v/pushwoosh-react-native-plugin.svg)](https://www.npmjs.com/package/pushwoosh-react-native-plugin)
-[![license](https://img.shields.io/npm/l/pushwoosh-react-native-plugin.svg)](https://www.npmjs.com/package/pushwoosh-react-native-plugin)
+node_modules/pushwoosh-react-native-plugin/src/android/build.gradle
 
-![platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS-yellowgreen.svg)
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://maven.google.com"
+        }
+    }
 
-| [Guide](https://www.pushwoosh.com/platform-docs/pushwoosh-sdk/cross-platform-frameworks/react-native/integrating-react-native-plugin) | [Documentation](https://docs.pushwoosh.com/platform-docs/pushwoosh-sdk/cross-platform-frameworks/react-native/integrating-react-native-plugin) | [Sample](https://github.com/Pushwoosh/pushwoosh-react-native-sample) |
-| ----------------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------- |
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.google.gms:google-services:4.3.3'   // 4.2.0
+    }
+}
 
+allprojects {
+    repositories {
+        jcenter()
+        maven {
+            url "https://maven.google.com"
+        }
+    }
+}
 
-### Installation
+apply plugin: 'com.android.library'
 
-```
-npm install pushwoosh-react-native-plugin --save
-react-native link pushwoosh-react-native-plugin
-```
+android {
+    compileSdkVersion 28    // 27
+    buildToolsVersion "28.0.3"  // remove
+    defaultConfig {
+        minSdkVersion 21    // 16
+        targetSdkVersion 28     // 27
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
 
-### Usage
+ext {
+    pushwoosh = "5.22.4"   // in the new is 5.22.6
+}
 
-```js
-import Pushwoosh from 'pushwoosh-react-native-plugin';
+evaluationDependsOn(':app')
 
-Pushwoosh.init({ 
-    "pw_appid" : "YOUR_PUSHWOOSH_PROJECT_ID" , 
-    "project_number" : "YOUR_GCM_PROJECT_NUMBER" 
-});
-Pushwoosh.register();
-```
+rootProject.subprojects {
+    if (name == "app") {
+        if (!plugins.hasPlugin('com.google.gms.google-services')) {
+            apply {
+                plugin com.google.gms.googleservices.GoogleServicesPlugin
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.facebook.react:react-native:+'
+    implementation "com.pushwoosh:pushwoosh:${pushwoosh}"
+    implementation "com.pushwoosh:pushwoosh-amazon:${pushwoosh}"
+    implementation "com.pushwoosh:pushwoosh-badge:${pushwoosh}"
+    implementation "com.pushwoosh:pushwoosh-inbox:${pushwoosh}"
+    implementation "com.pushwoosh:pushwoosh-inbox-ui:${pushwoosh}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:1.1.60"
+    implementation "com.google.firebase:firebase-core:(+,17.0.0)"
+    implementation "com.google.firebase:firebase-messaging:(+,19.0.0)"
+}
